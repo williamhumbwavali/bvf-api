@@ -1,0 +1,30 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3333:3333"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./storage:/app/storage
+    command: npm run start:dev
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bvf
+      POSTGRES_PASSWORD: bvf_password
+      POSTGRES_DB: bvf
+    ports:
+      - "5432:5432"
+    volumes:
+      - bvf_pgdata:/var/lib/postgresql/data
+
+volumes:
+  bvf_pgdata:
