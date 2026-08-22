@@ -8,6 +8,7 @@ import { PlaybackHistory } from './entities/playback-history.entity';
 import { DownloadHistory } from './entities/download-history.entity';
 import { ArtistFollower } from './entities/artist-follower.entity';
 import { Activity } from './entities/activity.entity';
+import { Genre } from './entities/genre.entity';
 
 export const ENTITIES = [
   User,
@@ -20,4 +21,5 @@ export const ENTITIES = [
   DownloadHistory,
   ArtistFollower,
   Activity,
+  Genre,
 ];

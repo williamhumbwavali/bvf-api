@@ -4,16 +4,13 @@ import {
   Entity,
   Index,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Artist } from './artist.entity';
 import { Album } from './albums.entity';
+import { Genre } from './genre.entity';
 
 @Entity('tracks')
 @Index(['title'])
@@ -24,8 +21,14 @@ export class Track {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
-  genre: string;
+  @ManyToOne(() => Genre, (genre) => genre.tracks, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'genreId' })
+  genre: Genre
+
+  @Column()
+  genreId: string
 
   @Column({ default: 0 })
   durationSec: number;

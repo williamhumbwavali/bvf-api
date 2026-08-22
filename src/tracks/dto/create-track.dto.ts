@@ -23,7 +23,7 @@ export class TrackDto {
   })
   @IsOptional()
   @IsString()
-  genre?: string;
+  genreId?: string;
 
   @ApiPropertyOptional({
     example: 215,

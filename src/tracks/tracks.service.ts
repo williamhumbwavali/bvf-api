@@ -60,6 +60,7 @@ export class TracksService {
         relations: [
           'artist',
           'album',
+          'genre'
         ],
 
         skip:
@@ -101,6 +102,7 @@ export class TracksService {
         relations: [
           'artist',
           'album',
+          'genre'
         ],
       });
 
