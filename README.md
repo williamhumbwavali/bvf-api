@@ -22,7 +22,7 @@ Com Docker: `docker compose up -d --build`.
 
 ## Música
 
-Artistas usam `POST /api/tracks` com JSON inicialmente (`title`, `genre`, `durationSec`, `audioUrl`, `coverUrl`). A camada `LocalStorageService` valida extensões e está pronta para ser substituída por S3/R2/MinIO; o controller de upload pode ser conectado ao mesmo serviço usando `multipart/form-data`.
+Artistas usam `POST /api/tracks` com JSON inicialmente (`title`, `genre`, `durationSec`, `audioUrl`, `coverUrl`). 
 
 ## Dados e migrations
 
