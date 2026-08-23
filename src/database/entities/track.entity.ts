@@ -5,12 +5,14 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Artist } from './artist.entity';
 import { Album } from './albums.entity';
 import { Genre } from './genre.entity';
+import { Like } from './like.entity';
 
 @Entity('tracks')
 @Index(['title'])
@@ -64,6 +66,9 @@ export class Track {
 
   @Column({ nullable: true })
   albumId: string;
+
+  @OneToMany(() => Like, (like) => like.track)
+  likes: Like[];
 
   @CreateDateColumn()
   createdAt: Date;

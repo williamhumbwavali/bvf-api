@@ -17,6 +17,8 @@ import { TracksService } from './tracks.service';
 
 import { TrackDto } from './dto/create-track.dto';
 import { StorageService } from 'src/storage/storage.service';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { Track } from 'src/database/entities/track.entity';
 
 @Controller('tracks')
 export class TracksController {
@@ -36,6 +38,32 @@ export class TracksController {
             +limit,
             search,
         );
+    }
+
+    @Get('trending')
+    @ApiOperation({
+        summary: 'Listar músicas em alta',
+        description:
+            'Retorna as músicas com maior número de reproduções.',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        example: 10,
+        description:
+            'Número máximo de músicas a retornar.',
+    })
+    @ApiResponse({
+        status: 200,
+        description:
+            'Músicas em alta retornadas com sucesso.',
+        type: [Track],
+    })
+    async trending(
+        @Query('limit') limit?: number,
+    ) {
+        return this.tracksService.trending(limit);
     }
 
     @Get(':id')
@@ -90,6 +118,7 @@ export class TracksController {
 
     @Delete(':id')
     @UseGuards(AuthGuard)
+    @ApiBearerAuth('access-token')
     remove(
         @Param('id') id: string,
         @CurrentUser() user: any,

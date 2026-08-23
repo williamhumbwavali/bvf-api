@@ -289,30 +289,23 @@ export class TracksService {
      LIKE TRACK
   ========================= */
 
-  async like(
-    id: string,
-    userId: string,
-  ) {
-    const track =
-      await this.tracksRepository.findOne({
-        where: {
-          id,
-        },
-      });
+  async like(id: string, userId: string) {
+    const track = await this.tracksRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     if (!track) {
-      throw new NotFoundException(
-        'Track not found',
-      );
+      throw new NotFoundException('Track not found');
     }
 
-    const existingLike =
-      await this.likesRepository.findOne({
-        where: {
-          trackId: id,
-          userId,
-        },
-      });
+    const existingLike = await this.likesRepository.findOne({
+      where: {
+        trackId: id,
+        userId,
+      },
+    });
 
     if (existingLike) {
       return {
@@ -320,15 +313,13 @@ export class TracksService {
       };
     }
 
-    const like =
-      this.likesRepository.create({
-        trackId: id,
-        userId,
-      });
+    const like = this.likesRepository.create({
+      userId,
+      trackId: id,
+      track,
+    });
 
-    await this.likesRepository.save(
-      like,
-    );
+    await this.likesRepository.save(like);
 
     return {
       liked: true,
@@ -368,5 +359,24 @@ export class TracksService {
     return {
       count,
     };
+  }
+
+  async trending(limit = 10) {
+    const limitNumber = Math.min(
+      Math.max(1, limit),
+      100,
+    );
+
+    return this.tracksRepository.find({
+      relations: [
+        'artist',
+        'album',
+        'genre',
+      ],
+      order: {
+        playCount: 'DESC',
+      },
+      take: limitNumber,
+    });
   }
 }

@@ -1,7 +1,10 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
+  Patch,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -9,13 +12,17 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/auth/auth.decorators';
 
 import { UsersService } from './users.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UpdateAccountDto } from './dto/update-account.dto';
 
+@ApiTags('Users')
 @Controller('users/me')
+@ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   @Get('history')
   history(
@@ -60,5 +67,16 @@ export class UsersController {
     return this.usersService.getFollowing(
       user.sub,
     );
+  }
+
+  @Patch('me')
+  updateAccount(
+    @Req() req: any,
+    @Body() dto: UpdateAccountDto,
+  ) {
+    return this.usersService.updateAccount(
+      req.user.id,
+      dto,
+    )
   }
 }

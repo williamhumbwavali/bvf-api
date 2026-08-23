@@ -2,16 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
-  UpdateDateColumn,
 } from 'typeorm';
+
+import { Track } from './track.entity';
 
 @Entity('likes')
 @Unique(['userId', 'trackId'])
@@ -24,6 +21,12 @@ export class Like {
 
   @Column()
   trackId: string;
+
+  @ManyToOne(() => Track, (track) => track.likes, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'trackId' })
+  track: Track;
 
   @CreateDateColumn()
   createdAt: Date;

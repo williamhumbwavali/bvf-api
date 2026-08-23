@@ -10,6 +10,8 @@ import { PlaybackHistory } from 'src/database/entities/playback-history.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { Artist } from 'src/database/entities/artist.entity';
+import { User } from 'src/database/entities/user.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { UsersService } from './users.service';
       Like,
       DownloadHistory,
       ArtistFollower,
+      Artist,
+      User
     ]),
 
     AuthModule,
