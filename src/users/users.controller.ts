@@ -75,7 +75,7 @@ export class UsersController {
     @Body() dto: UpdateAccountDto,
   ) {
     return this.usersService.updateAccount(
-      req.user.id,
+      req.sub,
       dto,
     )
   }
