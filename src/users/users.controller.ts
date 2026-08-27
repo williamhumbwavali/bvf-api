@@ -71,11 +71,11 @@ export class UsersController {
 
   @Patch('me')
   updateAccount(
-    @Req() req: any,
+    @CurrentUser() user: any,
     @Body() dto: UpdateAccountDto,
   ) {
     return this.usersService.updateAccount(
-      req.sub,
+      user.sub,
       dto,
     )
   }
