@@ -1,6 +1,7 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { DownloadHistory } from 'src/database/entities/download-history.entity';
 import { ArtistFollower } from 'src/database/entities/artist-follower.entity';
@@ -182,5 +183,46 @@ export class UsersService {
       bio: user.bio,
       genre: user.genre,
     }
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.id = :userId', { userId })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('Utilizador não encontrado');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('A senha atual está incorreta');
+    }
+
+    if (currentPassword === newPassword) {
+      throw new ConflictException(
+        'A nova senha deve ser diferente da senha atual',
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    user.passwordHash = passwordHash;
+
+    await this.usersRepository.save(user);
+
+    return {
+      message: 'Senha alterada com sucesso',
+    };
   }
 }
