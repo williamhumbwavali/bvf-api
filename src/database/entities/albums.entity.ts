@@ -29,7 +29,7 @@ export class Album {
   @Column({ nullable: true })
   coverUrl: string;
 
-  @ManyToOne(() => Artist, (artist) => artist.tracks, {
+  @ManyToOne(() => Artist, (artist) => artist.albums, {
     onDelete: 'CASCADE',
   })
   artist: Artist;

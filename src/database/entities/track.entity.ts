@@ -65,7 +65,7 @@ export class Track {
   album: Album;
 
   @Column({ nullable: true })
-  albumId: string;
+  albumId: string | null;
 
   @OneToMany(() => Like, (like) => like.track)
   likes: Like[];

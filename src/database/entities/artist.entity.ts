@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Track } from './track.entity';
+import { Album } from './albums.entity';
 
 @Entity('artists')
 @Unique(['handle'])
@@ -57,4 +58,7 @@ export class Artist {
 
   @OneToMany(() => Track, (track) => track.artist)
   tracks: Track[];
+
+  @OneToMany(() => Album, (album) => album.artist)
+  albums: Album[];
 }

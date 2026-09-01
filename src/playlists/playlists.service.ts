@@ -8,9 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from "src/database/entities/playlist.entity";
 import { Track } from "src/database/entities/track.entity";
 
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { PlaylistDto } from './dto/create-playlist.dto';
+import { PlaylistTracksDto } from './dto/playlist-tracks.dto';
 
 @Injectable()
 export class PlaylistsService {
@@ -143,5 +144,39 @@ export class PlaylistsService {
     return {
       deleted: true,
     };
+  }
+
+  async addTracks(id: string, dto: PlaylistTracksDto, userId: string) {
+    const playlist = await this.playlistsRepository.findOne({
+      where: { id, ownerId: userId },
+      relations: ['tracks'],
+    });
+    if (!playlist) throw new NotFoundException('Playlist not found');
+
+    const tracks = await this.tracksRepository.findBy({ id: In(dto.trackIds) });
+    if (tracks.length !== dto.trackIds.length) {
+      throw new NotFoundException('One or more tracks were not found');
+    }
+
+    const existingIds = new Set(playlist.tracks.map((track) => track.id));
+    playlist.tracks.push(...tracks.filter((track) => !existingIds.has(track.id)));
+    await this.playlistsRepository.save(playlist);
+    return this.get(id);
+  }
+
+  async removeTrack(id: string, trackId: string, userId: string) {
+    const playlist = await this.playlistsRepository.findOne({
+      where: { id, ownerId: userId },
+      relations: ['tracks'],
+    });
+    if (!playlist) throw new NotFoundException('Playlist not found');
+
+    if (!playlist.tracks.some((track) => track.id === trackId)) {
+      throw new NotFoundException('Track not found in this playlist');
+    }
+
+    playlist.tracks = playlist.tracks.filter((track) => track.id !== trackId);
+    await this.playlistsRepository.save(playlist);
+    return { removed: true };
   }
 }

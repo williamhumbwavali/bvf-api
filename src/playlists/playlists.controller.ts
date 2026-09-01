@@ -1,11 +1,9 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import { AuthGuard } from "src/auth/auth.guard";
 import { CurrentUser } from "src/auth/auth.decorators";
-import { Playlist } from "src/database/entities/playlist.entity";
-import { Track } from "src/database/entities/track.entity";
-import { Repository } from "typeorm";
 import { PlaylistDto } from "./dto/create-playlist.dto";
+import { PlaylistTracksDto } from './dto/playlist-tracks.dto';
+import { PlaylistsService } from './playlists.service';
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 @ApiTags('Playlists')
@@ -13,22 +11,11 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 @UseGuards(AuthGuard)
 @Controller('playlists')
 export class PlaylistsController {
-  constructor(
-    @InjectRepository(Playlist)
-    private readonly r: Repository<Playlist>,
-
-    @InjectRepository(Track)
-    private readonly tracks: Repository<Track>,
-  ) {}
+  constructor(private readonly playlists: PlaylistsService) {}
 
   @Get()
   list(@CurrentUser() user: any) {
-    return this.r.find({
-      where: {
-        ownerId: user.sub,
-      },
-      relations: ['tracks'],
-    });
+    return this.playlists.list(user.sub);
   }
 
   @Post()
@@ -36,57 +23,46 @@ export class PlaylistsController {
     @Body() dto: PlaylistDto,
     @CurrentUser() user: any,
   ) {
-    return this.r.save(
-      this.r.create({
-        ...dto,
-        ownerId: user.sub,
-      }),
-    );
+    return this.playlists.create(dto, user.sub);
   }
 
   @Get(':id')
   get(@Param('id') id: string) {
-    return this.r.findOne({
-      where: {
-        id,
-      },
-      relations: ['tracks'],
-    });
+    return this.playlists.get(id);
   }
 
   @Patch(':id')
-  async update(
+  update(
     @Param('id') id: string,
     @Body() dto: PlaylistDto,
     @CurrentUser() user: any,
   ) {
-    const playlist = await this.r.findOneBy({
-      id,
-      ownerId: user.sub,
-    });
-
-    if (!playlist) {
-      throw new NotFoundException();
-    }
-
-    return this.r.save({
-      ...playlist,
-      ...dto,
-    });
+    return this.playlists.update(id, dto, user.sub);
   }
 
   @Delete(':id')
-  async remove(
+  remove(
     @Param('id') id: string,
     @CurrentUser() user: any,
   ) {
-    await this.r.delete({
-      id,
-      ownerId: user.sub,
-    });
+    return this.playlists.remove(id, user.sub);
+  }
 
-    return {
-      deleted: true,
-    };
+  @Post(':id/tracks')
+  addTracks(
+    @Param('id') id: string,
+    @Body() dto: PlaylistTracksDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.playlists.addTracks(id, dto, user.sub);
+  }
+
+  @Delete(':id/tracks/:trackId')
+  removeTrack(
+    @Param('id') id: string,
+    @Param('trackId') trackId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.playlists.removeTrack(id, trackId, user.sub);
   }
 }
